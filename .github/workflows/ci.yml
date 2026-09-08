@@ -41,16 +41,13 @@ jobs:
 
       - name: Pre-download GenVM linter SDK (curl into cache)
         run: |
-          # The linter's download command iterates over asset names in a
-          # specific order and returns 404 if the first one is missing
-          # inside urllib's redirect chain on hosted runners. Curl the
-          # working `genvm-universal.tar.xz` directly into the cache dir
-          # the linter would use, so the linter finds it and skips its
-          # own downloader.
-          CACHE_DIR="$(python -c 'from genvm_linter.validate.artifacts import get_cache_dir; print(get_cache_dir())')"
-          PREFIX="$(python -c 'from genvm_linter.validate.artifacts import _cache_prefix; print(_cache_prefix())')"
-          mkdir -p "$CACHE_DIR"
-          DEST="${CACHE_DIR}/${PREFIX}${GENVM_VERSION}.tar.xz"
+          # The linter's own downloader was returning HTTP 404 on the
+          # hosted runner despite the release asset resolving fine
+          # locally, so curl the working `genvm-universal.tar.xz` bundle
+          # straight into the cache path the linter uses (via its
+          # public `get_tarball_path` helper).
+          DEST="$(python -c 'from genvm_linter.validate.artifacts import get_tarball_path; import os; print(get_tarball_path(os.environ["GENVM_VERSION"]))')"
+          mkdir -p "$(dirname "$DEST")"
           echo "Downloading GenVM ${GENVM_VERSION} to ${DEST}"
           curl -L --fail --retry 3 --retry-delay 5 \
             -H "User-Agent: genvm-linter" \
