@@ -107,8 +107,11 @@ $ python scripts/verify_all.py
 
 ## Finalized on Studionet chain 61999
 
-- `Once` at `0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70`
-- `OnceProtectedExecutor` at `0x0D97c40E422A865dD9E59824446d0A3C33400109`
+Explorer: [explorer-studio.genlayer.com](https://explorer-studio.genlayer.com).
+
+- Submitter: [`0x13AE0C28D06716D2908B5d84c3c0c3d815378f3B`](https://explorer-studio.genlayer.com/address/0x13AE0C28D06716D2908B5d84c3c0c3d815378f3B)
+- `Once` at [`0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70`](https://explorer-studio.genlayer.com/address/0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70)
+- `OnceProtectedExecutor` at [`0x0D97c40E422A865dD9E59824446d0A3C33400109`](https://explorer-studio.genlayer.com/address/0x0D97c40E422A865dD9E59824446d0A3C33400109)
 - Reviewer profile id `3`, `definition_hash`
   `09a29293ad55b4b66c5f6a6d5891b5910da430c6eb8f2507bec4c3e47f282050`
 - All nine lifecycle transactions (deploy Once, deploy executor,

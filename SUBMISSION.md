@@ -67,28 +67,31 @@ That invariant is the core of the primitive.
 ## Live evidence — Studionet chain 61999
 
 All transactions are **FINALIZED** on stable GenLayer Studionet, chain ID
-`61999`, RPC `https://studio.genlayer.com/api`.
+`61999`, RPC `https://studio.genlayer.com/api`. Every hash below links
+to the Studio explorer at
+[explorer-studio.genlayer.com](https://explorer-studio.genlayer.com).
 
-- `Once` deployment: `0xc686051637969ecb981666078209ac7b7e120629acfbcaff23a4a84b18370a87`
-  → address `0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70`
-- `OnceProtectedExecutor` deployment: `0x53f420674b1ca2ab15226460a95ee73d03264b915825a5974a3a34b1fd644a1f`
-  → address `0x0D97c40E422A865dD9E59824446d0A3C33400109`
-- Profile create: `0x1fc0a579534f18ac03b316c8c7302117323e023ae98ccb6ab22f3dca61a1a3a2`
-- Profile seal: `0xed78ecf6111998195470cdebe0fb2024649090a8d1c119cc7ab63cd792b555d7`
+- Submitter address: [`0x13AE0C28D06716D2908B5d84c3c0c3d815378f3B`](https://explorer-studio.genlayer.com/address/0x13AE0C28D06716D2908B5d84c3c0c3d815378f3B)
+- `Once` contract: [`0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70`](https://explorer-studio.genlayer.com/address/0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70)
+  — deploy tx [`0xc686…a87`](https://explorer-studio.genlayer.com/tx/0xc686051637969ecb981666078209ac7b7e120629acfbcaff23a4a84b18370a87)
+- `OnceProtectedExecutor` contract: [`0x0D97c40E422A865dD9E59824446d0A3C33400109`](https://explorer-studio.genlayer.com/address/0x0D97c40E422A865dD9E59824446d0A3C33400109)
+  — deploy tx [`0x53f4…a1f`](https://explorer-studio.genlayer.com/tx/0x53f420674b1ca2ab15226460a95ee73d03264b915825a5974a3a34b1fd644a1f)
+- Profile create tx: [`0x1fc0…3a2`](https://explorer-studio.genlayer.com/tx/0x1fc0a579534f18ac03b316c8c7302117323e023ae98ccb6ab22f3dca61a1a3a2)
+- Profile seal tx: [`0xed78…5d7`](https://explorer-studio.genlayer.com/tx/0xed78ecf6111998195470cdebe0fb2024649090a8d1c119cc7ab63cd792b555d7)
 - Profile id `3`, `definition_hash`
   `09a29293ad55b4b66c5f6a6d5891b5910da430c6eb8f2507bec4c3e47f282050`
 - First attempt (`NEW_EFFECT`, effect #2, canonical action hash `11…11`):
-  `0x66ac416a1f2a294066a14d4647a507525067e8d2676e459d4d89d27225d32358`
+  [`0x66ac…358`](https://explorer-studio.genlayer.com/tx/0x66ac416a1f2a294066a14d4647a507525067e8d2676e459d4d89d27225d32358)
 - Semantic retry (`SAME_EFFECT`, same effect #2, alternative action hash
   `22…22`, canonical hash unchanged):
-  `0x5f5ab1be0c99bf49549f9a41ab8837ccfda88834e95b8e556c8986f5ca130c73`
+  [`0x5f5a…c73`](https://explorer-studio.genlayer.com/tx/0x5f5ab1be0c99bf49549f9a41ab8837ccfda88834e95b8e556c8986f5ca130c73)
 - Executor rejects alternative payload (`EXPECTED: Once permit is not
   executable`):
-  `0x90a51a068036a71ff97dc3d5c7bfbe21e9a58440844a03642ef592d84426923a`
+  [`0x90a5…23a`](https://explorer-studio.genlayer.com/tx/0x90a51a068036a71ff97dc3d5c7bfbe21e9a58440844a03642ef592d84426923a)
 - Executor accepts canonical payload once:
-  `0xe4a1ba3bdeccdf0f4992c2414fa2a87ad9b1492653b9592fcd3151424f733a74`
+  [`0xe4a1…a74`](https://explorer-studio.genlayer.com/tx/0xe4a1ba3bdeccdf0f4992c2414fa2a87ad9b1492653b9592fcd3151424f733a74)
 - Executor rejects replay (`EXPECTED: effect already consumed`):
-  `0x1c276d4183900a2e45f39ab8b547572e09f9161b6db947d39f6dd247d50a7c64`
+  [`0x1c27…c64`](https://explorer-studio.genlayer.com/tx/0x1c276d4183900a2e45f39ab8b547572e09f9161b6db947d39f6dd247d50a7c64)
 
 Validator consensus for the semantic retry recorded five validators with
 `MAJORITY_AGREE` (`AGREE`/`IDLE` split reported on-chain). The reviewer

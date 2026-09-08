@@ -2,10 +2,17 @@
   "network": "studionet",
   "chain_id": 61999,
   "rpc": "https://studio.genlayer.com/api",
+  "explorer": "https://explorer-studio.genlayer.com",
+  "submitter_address": "0x13AE0C28D06716D2908B5d84c3c0c3d815378f3B",
+  "submitter_explorer_url": "https://explorer-studio.genlayer.com/address/0x13AE0C28D06716D2908B5d84c3c0c3d815378f3B",
   "once_address": "0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70",
+  "once_explorer_url": "https://explorer-studio.genlayer.com/address/0xf25F26d356FD4aeccACF01A9bFbE7ea84a10dD70",
   "once_deploy_tx": "0xc686051637969ecb981666078209ac7b7e120629acfbcaff23a4a84b18370a87",
+  "once_deploy_tx_explorer_url": "https://explorer-studio.genlayer.com/tx/0xc686051637969ecb981666078209ac7b7e120629acfbcaff23a4a84b18370a87",
   "protected_executor_address": "0x0D97c40E422A865dD9E59824446d0A3C33400109",
+  "protected_executor_explorer_url": "https://explorer-studio.genlayer.com/address/0x0D97c40E422A865dD9E59824446d0A3C33400109",
   "protected_executor_deploy_tx": "0x53f420674b1ca2ab15226460a95ee73d03264b915825a5974a3a34b1fd644a1f",
+  "protected_executor_deploy_tx_explorer_url": "https://explorer-studio.genlayer.com/tx/0x53f420674b1ca2ab15226460a95ee73d03264b915825a5974a3a34b1fd644a1f",
   "profile_id": 3,
   "profile_definition_hash": "09a29293ad55b4b66c5f6a6d5891b5910da430c6eb8f2507bec4c3e47f282050",
   "profile_create_tx": "0x1fc0a579534f18ac03b316c8c7302117323e023ae98ccb6ab22f3dca61a1a3a2",
@@ -22,6 +29,5 @@
   "alternative_payload_rejection_tx": "0x90a51a068036a71ff97dc3d5c7bfbe21e9a58440844a03642ef592d84426923a",
   "canonical_execution_tx": "0xe4a1ba3bdeccdf0f4992c2414fa2a87ad9b1492653b9592fcd3151424f733a74",
   "replay_rejection_tx": "0x1c276d4183900a2e45f39ab8b547572e09f9161b6db947d39f6dd247d50a7c64",
-  "all_lifecycle_txs_status": "FINALIZED",
-  "explorer": "https://genlayer-explorer.vercel.app"
+  "all_lifecycle_txs_status": "FINALIZED"
 }
