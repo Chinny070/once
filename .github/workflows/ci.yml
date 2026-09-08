@@ -1,0 +1,75 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: preflight + lint + tests + integration collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: "1"
+      # Skip live Studionet checks by default in CI (the hosted node may
+      # rate-limit unauthenticated traffic and network access from PR forks is
+      # not guaranteed). Re-enable by setting ONCE_SKIP_LIVE=0 in the run env.
+      ONCE_SKIP_LIVE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned toolchain
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Python compilation (contracts, scripts, tests)
+        run: |
+          python -m compileall -q contracts scripts tests
+
+      - name: Static preflight
+        run: python scripts/preflight.py
+
+      - name: GenVM lint & validation (Once)
+        run: python -m genvm_linter.cli check contracts/once.py
+
+      - name: GenVM lint & validation (OnceProtectedExecutor)
+        run: python -m genvm_linter.cli check contracts/protected_executor.py
+
+      - name: Direct-mode test suite
+        run: python -m pytest tests/direct -q
+
+      - name: Integration-test collection (no network)
+        run: python -m pytest tests/integration --collect-only -q
+
+      - name: End-to-end verifier (no live RPC in CI)
+        run: python scripts/verify_all.py
+
+  verify-live:
+    # Optional job that hits the hosted Studionet RPC to confirm the
+    # documented transaction hashes are still finalized. Only runs on the
+    # main branch to avoid rate-limiting from PR forks.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: verify live studionet evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Studionet chain-id guard
+        run: python scripts/check_studionet.py
+      - name: Verify live Studionet evidence
+        run: python scripts/verify_live_evidence.py

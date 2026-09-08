@@ -259,32 +259,59 @@ It composes with those systems.
 
 ## Testing
 
-Install development dependencies:
+Install the pinned development toolchain
+(`genlayer-test==0.29.2`, `genvm-linter==0.10.0`, `pytest==9.1.1`):
 
 ```bash
 python -m pip install -r requirements-dev.txt
 ```
 
-Static preflight:
+One command runs every reviewer gate — Python compilation, static
+preflight, GenVM lint & validation, direct-mode tests, integration-test
+collection, Studionet chain-id guard, and the live-evidence verifier:
+
+```bash
+python scripts/verify_all.py
+```
+
+Set `ONCE_SKIP_LIVE=1` to skip the two live-RPC steps.
+
+Individual steps:
 
 ```bash
 python scripts/preflight.py
-```
-
-Lint:
-
-```bash
 genvm-lint check contracts/once.py
 genvm-lint check contracts/protected_executor.py
+pytest tests/direct -q                              # 27 direct-mode cases
+pytest tests/integration --collect-only -q          # collect-only sanity
+python scripts/check_studionet.py                   # RPC reports chain 61999
+python scripts/verify_live_evidence.py              # 30 on-chain checks
 ```
 
-Direct mode:
+The direct suite covers deterministic first issuance, exact retries,
+semantic retries, material changes, ambiguity, requester/scope
+isolation, revocation, expiry, action-hash binding, consumer binding,
+prompt-control rejection, malicious leader inventing an unknown
+candidate id, malformed model output, validator disagreement,
+action-hash immutability across three semantic retries, short
+action_hash, empty scope, submit-before-seal, control-like
+`equivalence_rule`, expired-effect executability, `MAX_LIVE_CANDIDATES`
+overflow failing closed, profile-owner-only revocation, stranger revoke
+rejection, and missing-timestamp fail-closed.
+
+The Studionet integration test (`tests/integration/test_once_studionet.py`)
+deploys both contracts from a clean checkout, runs the entire lifecycle,
+verifies every write reaches `FINALIZED`, and reads canonical state
+after each write. Contract paths resolve from the repository root, so
+the test is invocable from any working directory:
 
 ```bash
-pytest tests/direct -q
+pytest tests/integration/test_once_studionet.py -q --network studionet -s
 ```
 
-The direct suite covers deterministic first issuance, exact retries, semantic retries, material changes, ambiguity, requester/scope isolation, revocation, expiry, action-hash binding, consumer binding, and prompt-control rejection.
+CI enforces the same offline gates on every push and PR to `main`
+(see `.github/workflows/ci.yml`), and a second job runs the live
+Studionet checks on pushes to `main`.
 
 ## Studionet target
 

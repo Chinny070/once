@@ -35,11 +35,20 @@ or an equivalent successful chain report. If the RPC reports any other chain ID,
 
 ## 3. Preflight
 
+Run the whole gate suite in one command:
+
+```bash
+python scripts/verify_all.py
+```
+
+Or the individual steps:
+
 ```bash
 python scripts/preflight.py
 genvm-lint check contracts/once.py
 genvm-lint check contracts/protected_executor.py
-pytest tests/direct -q
+pytest tests/direct -q                          # 27 cases
+pytest tests/integration --collect-only -q
 ```
 
 Do not deploy while any of these fail.
@@ -151,7 +160,17 @@ If the installed gltest version uses a different network-selection flag, use its
 
 ## 11. Update evidence
 
-Fill `deployments/studionet.json` with real values and replace all `PENDING` fields. Add the real transaction hashes and final commit SHA to `SUBMISSION.md`.
+Fill `deployments/studionet.json` with real values and replace all
+`PENDING` fields. Add the real transaction hashes and final commit SHA
+to `SUBMISSION.md`.
+
+Then re-run the machine-readable verifier and confirm every hash
+resolves to a `FINALIZED` transaction with the expected execution
+result:
+
+```bash
+python scripts/verify_live_evidence.py
+```
 
 ## 12. Push only after evidence is truthful
 

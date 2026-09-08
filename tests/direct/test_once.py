@@ -375,6 +375,95 @@ def test_control_like_equivalence_rule_is_rejected(direct_vm, direct_deploy):
         )
 
 
+def test_more_than_max_live_candidates_fails_closed(direct_vm, direct_deploy):
+    """MAX_LIVE_CANDIDATES = 12. Load the same requester/scope with 13 live
+    effects and confirm the next submission fails closed rather than silently
+    truncating the candidate set."""
+    contract, profile, _ = build_profile(direct_vm, direct_deploy)
+    # Effect 1 is deterministic NEW_EFFECT (no live candidates).
+    first_effect(
+        contract,
+        profile,
+        description="Purchase 1 A100 GPU hour from Supplier Atlas for batch 42 at total price 45 USDC.",
+        action_hash=("11" * 32),
+    )
+    # Effects 2..13 all take the mocked NEW_EFFECT path so we build up 13 live
+    # candidates in the same requester/scope.
+    for i in range(2, 14):
+        mock_new(direct_vm)
+        contract.submit_attempt(
+            profile,
+            "atlas:batch-42:gpu",
+            f"Purchase {i} A100 GPU hours from Supplier Atlas for batch 42 at total price {i * 45} USDC.",
+            hex(0xAA00 + i)[2:].zfill(32),
+        )
+    assert contract.get_profile(profile)["effect_count"] == 13
+    # A 14th submission would iterate 13 live candidates and hit the >12 guard.
+    mock_new(direct_vm)
+    with direct_vm.expect_revert("too many live effects"):
+        contract.submit_attempt(
+            profile,
+            "atlas:batch-42:gpu",
+            "Purchase 14 A100 GPU hours from Supplier Atlas for batch 42 at total price 630 USDC.",
+            "cd" * 32,
+        )
+
+
+def test_stranger_cannot_revoke_effect(direct_vm, direct_deploy):
+    contract, profile, _ = build_profile(direct_vm, direct_deploy)
+    _, effect_id = first_effect(contract, profile)
+    stranger = address("stranger")
+    with direct_vm.prank(stranger):
+        with direct_vm.expect_revert("only requester or profile owner"):
+            contract.revoke_effect(effect_id)
+
+
+def test_profile_owner_can_revoke_someone_elses_effect(direct_vm, direct_deploy):
+    """Profile owner authority: a foreign requester's effect can still be
+    revoked by the profile owner, and a subsequent duplicate maps to the now
+    REVOKED effect rather than minting a fresh permit."""
+    contract, profile, _ = build_profile(direct_vm, direct_deploy)
+    bob = address("bob")
+    with direct_vm.prank(bob):
+        attempt = contract.submit_attempt(
+            profile,
+            "atlas:batch-42:gpu",
+            "Purchase two A100 GPU hours from Supplier Atlas for batch 42 at total price 90 USDC.",
+            "77" * 32,
+        )
+    effect_id = contract.get_attempt(attempt)["effect_id"]
+    # Default sender is the profile owner. They must be able to revoke bob's effect.
+    contract.revoke_effect(effect_id)
+    assert contract.get_effect(effect_id)["status_name"] == "REVOKED"
+    # Bob's exact-text retry still resolves to the revoked effect (no minting).
+    with direct_vm.prank(bob):
+        retry = contract.submit_attempt(
+            profile,
+            "atlas:batch-42:gpu",
+            "Purchase two A100 GPU hours from Supplier Atlas for batch 42 at total price 90 USDC.",
+            "88" * 32,
+        )
+    assert contract.get_attempt(retry)["effect_id"] == effect_id
+    assert contract.get_profile(profile)["effect_count"] == 1
+
+
+def test_missing_timestamp_raises_expected_error(direct_vm, direct_deploy):
+    """The contract must fail closed with a typed EXPECTED error when the
+    transaction datetime is missing, not with a raw Python exception."""
+    import sys
+    contract, profile, _ = build_profile(direct_vm, direct_deploy)
+    gl_mod = sys.modules["genlayer.gl"]
+    gl_mod.message_raw["datetime"] = ""
+    direct_vm._refresh_gl_message = lambda: gl_mod.message_raw.__setitem__("datetime", "")
+    with direct_vm.expect_revert("transaction timestamp unavailable"):
+        contract.submit_attempt(
+            profile,
+            "atlas:batch-42:gpu",
+            "Purchase two A100 GPU hours from Supplier Atlas for batch 42 at total price 90 USDC.",
+            "de" * 32,
+        )
+
+
 def test_expired_effect_is_not_executable(direct_vm, direct_deploy):
     contract, profile, consumer = build_profile(direct_vm, direct_deploy, window=3600)
     _, effect_id = first_effect(contract, profile)
