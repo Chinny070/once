@@ -50,8 +50,14 @@ stable Studionet chain id `61999` and RPC `https://studio.genlayer.com/api`.
   guard, and live-evidence verifier. Exits nonzero on any failure. Set
   `ONCE_SKIP_LIVE=1` to skip the two live steps for air-gapped CI.
 - `.github/workflows/ci.yml` — a `verify` job that runs the offline
-  gates on every push/PR to `main`, plus a `verify-live` job that runs
-  the two Studionet checks on pushes to `main`.
+  gates on every push/PR to `main` (Python compilation, static
+  preflight, GenVM AST lint of both contracts, direct-suite pytest
+  collection, integration-suite pytest collection), plus a
+  `verify-live` job that runs the Studionet chain-id guard and the
+  live-evidence verifier on pushes to `main`. Steps that need the 128 MB
+  GenVM release bundle (full `genvm-lint check`, runtime execution of
+  the direct-mode suite) run locally against `scripts/verify_all.py`;
+  their output is captured verbatim below.
 
 ## Pinned toolchain (captured in `requirements-dev.txt`)
 
