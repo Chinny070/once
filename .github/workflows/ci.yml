@@ -39,13 +39,24 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
 
-      - name: Pre-download GenVM linter SDK
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pre-download GenVM linter SDK (curl into cache)
         run: |
-          # Use the workflow token so the GitHub Releases API is not rate
-          # limited on unauthenticated hosted runners.
-          python -m genvm_linter.cli download --version "$GENVM_VERSION"
+          # The linter's download command iterates over asset names in a
+          # specific order and returns 404 if the first one is missing
+          # inside urllib's redirect chain on hosted runners. Curl the
+          # working `genvm-universal.tar.xz` directly into the cache dir
+          # the linter would use, so the linter finds it and skips its
+          # own downloader.
+          CACHE_DIR="$(python -c 'from genvm_linter.validate.artifacts import get_cache_dir; print(get_cache_dir())')"
+          PREFIX="$(python -c 'from genvm_linter.validate.artifacts import _cache_prefix; print(_cache_prefix())')"
+          mkdir -p "$CACHE_DIR"
+          DEST="${CACHE_DIR}/${PREFIX}${GENVM_VERSION}.tar.xz"
+          echo "Downloading GenVM ${GENVM_VERSION} to ${DEST}"
+          curl -L --fail --retry 3 --retry-delay 5 \
+            -H "User-Agent: genvm-linter" \
+            -o "$DEST" \
+            "https://github.com/genlayerlabs/genvm-manager/releases/download/${GENVM_VERSION}/genvm-universal.tar.xz"
+          ls -lh "$DEST"
 
       - name: Python compilation (contracts, scripts, tests)
         run: |
