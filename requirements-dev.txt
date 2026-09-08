@@ -1,5 +1,5 @@
 # Pinned so `pip install -r requirements-dev.txt` produces the exact
 # toolchain the reviewer evidence and CI were captured under.
 genlayer-test==0.29.2
-genvm-linter==0.10.0
+genvm-linter==0.11.0
 pytest==9.1.1
